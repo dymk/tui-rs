@@ -10,8 +10,8 @@ use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{
-        Block, Borders, Cell, InteractiveWidgetState, List, ListItem, Paragraph, Row, Table, TextInput,
-        TextInputState,
+        Block, Borders, Cell, InteractiveWidgetState, List, ListItem, Paragraph, Row, Table,
+        TextInput, TextInputState,
     },
     Frame, Terminal,
 };

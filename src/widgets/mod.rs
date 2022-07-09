@@ -45,7 +45,7 @@ pub use self::tabs::Tabs;
 pub use self::text_input::{TextInput, TextInputState};
 
 #[cfg(feature = "crossterm")]
-pub use self::crossterm_interactive_widget::{InteractiveWidgetState, InteractionOutcome};
+pub use self::crossterm_interactive_widget::{InteractionOutcome, InteractiveWidgetState};
 
 use crate::backend::Backend;
 use crate::Frame;
@@ -196,12 +196,7 @@ pub trait StatefulWidget {
 pub trait InteractiveWidget {
     type State;
 
-    fn render<'a, B: Backend + 'a>(
-        self,
-        area: Rect,
-        frame: &mut Frame<'a, B>,
-        state: &Self::State,
-    );
+    fn render<'a, B: Backend + 'a>(self, area: Rect, frame: &mut Frame<'a, B>, state: &Self::State);
 
     fn render_mut<'a, B: Backend + 'a>(
         self,

@@ -1,6 +1,6 @@
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-use crate::widgets::{InteractiveWidgetState, InteractionOutcome, TextInputState};
+use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState};
 
 impl InteractiveWidgetState for TextInputState {
     fn handle_event(&mut self, event: Event) -> InteractionOutcome {
@@ -160,7 +160,7 @@ impl TextInputState {
 mod test {
     use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-    use crate::widgets::{InteractiveWidgetState, InteractionOutcome, TextInputState};
+    use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState};
 
     macro_rules! assert_consumed {
         ($expr:expr) => {
