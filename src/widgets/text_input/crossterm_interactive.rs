@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
 use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState};
@@ -24,6 +26,14 @@ impl InteractiveWidgetState for TextInputState {
 
     fn unfocus(&mut self) {
         self.unfocus()
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
     }
 }
 

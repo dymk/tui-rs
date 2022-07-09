@@ -97,6 +97,13 @@ pub struct TextInputState {
     can_take_focus: bool,
 }
 
+// default initializer for TextInputState from &str
+impl Into<TextInputState> for &str {
+    fn into(self) -> TextInputState {
+        TextInputState::with_value(self)
+    }
+}
+
 impl TextInputState {
     pub fn with_value(value: &str) -> TextInputState {
         TextInputState {
@@ -130,7 +137,7 @@ impl TextInputState {
     pub fn set_cursor(&mut self, pos: usize) {
         self.cursor_pos = pos;
     }
-    pub fn get_value(&self) -> &String {
+    pub fn get_value(&self) -> &str {
         &self.value
     }
 }
