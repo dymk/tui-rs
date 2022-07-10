@@ -199,13 +199,4 @@ impl<'a> InteractiveWidget for TextInput<'a> {
             frame.set_cursor(area.x + (state.cursor_pos as u16), area.y);
         }
     }
-
-    fn render_mut<'b, B: crate::backend::Backend + 'b>(
-        self,
-        area: Rect,
-        frame: &mut crate::Frame<'b, B>,
-        state: &mut Self::State,
-    ) {
-        self.render(area, frame, state);
-    }
 }

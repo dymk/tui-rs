@@ -147,7 +147,10 @@ macro_rules! interactive_form_state {
     // process field that has no default initializer - use Default::default()
     // instead
     ('make_default $name:ident
-        [[$field_name:ident:$field_type:ty] $([$rest_name:ident:$rest_type:ty$(=$rest_default:expr)?])*]
+        [
+            [$field_name:ident:$field_type:ty]
+            $([$rest_name:ident:$rest_type:ty$(=$rest_default:expr)?])*
+        ]
         [$([$processed_name:ident=$processed_default:expr])*]
     ) => {
         $crate::interactive_form_state!(
@@ -157,7 +160,7 @@ macro_rules! interactive_form_state {
         );
     };
 
-    // process field that has a default initializer - use `$field_expr.into_widget_state()`
+    // process field that has a default initializer - use `$field_expr.into()`
     // implement crate::widgets::ValueIntoWidgetState for types which can be
     // used as default initialzers for various concrete widget state types
     ('make_default $name:ident
@@ -244,6 +247,8 @@ macro_rules! interactive_form_state {
             $($fields)*
         )
     };
+
+    // at least one field variant
     ('get_field_at_idx_impl ($($self_ref:tt)*) $idx_id:ident $idx:expr; $field:ident $($rest:ident)*) => {
         if $idx == $idx_id {
             Some($($self_ref)*.$field)
@@ -255,6 +260,8 @@ macro_rules! interactive_form_state {
             )
         }
     };
+
+    // no fields remain variant (None)
     ('get_field_at_idx_impl ($($self_ref:tt)*) $idx_id:ident $idx:expr; /* no fields */) => { None }
 }
 

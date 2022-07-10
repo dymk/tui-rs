@@ -14,6 +14,7 @@
 //! - [`Gauge`]
 //! - [`Sparkline`]
 //! - [`Clear`]
+//! - [`TextInput`]
 
 mod barchart;
 mod block;
@@ -195,10 +196,12 @@ pub trait StatefulWidget {
 
 pub trait InteractiveWidget {
     type State;
-
     fn render<'a, B: Backend + 'a>(self, area: Rect, frame: &mut Frame<'a, B>, state: &Self::State);
+}
 
-    fn render_mut<'a, B: Backend + 'a>(
+pub trait InteractiveWidgetMut {
+    type State;
+    fn render<'a, B: Backend + 'a>(
         self,
         area: Rect,
         frame: &mut Frame<'a, B>,
