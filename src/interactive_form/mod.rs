@@ -5,26 +5,32 @@ use crate::stdlib_utils::AndThenOrOption;
 pub mod macro_impl;
 
 /*
- * Structs that implement `InputFormBacking` hooks will automatically get an
- * implementation of `InputForm`
+ * Structs that implement `InteractiveFormBacking` hooks will automatically get an
+ * implementation of `InteractiveForm`
 */
 pub trait InteractiveFormHooks {
     fn focused_state_idx(&self) -> Option<usize>;
     fn set_focused_state_idx(&mut self, idx: Option<usize>);
     fn input_states_len(&self) -> usize;
+    fn input_state_at(&self, idx: usize) -> Option<&dyn InteractiveWidgetState>;
     fn input_state_at_mut(&mut self, idx: usize) -> Option<&mut dyn InteractiveWidgetState>;
 }
 
 pub trait InteractiveForm {
-    fn handle_input(&mut self, event: Event) -> InteractionOutcome;
+    fn handle_event(&mut self, event: Event) -> InteractionOutcome;
+
     fn focus_next_input(&mut self);
     fn focus_prev_input(&mut self);
-    fn any_inputs_focused(&self) -> bool;
     fn unfocus_inputs(&mut self);
+
+    fn any_inputs_focused(&self) -> bool;
+
+    fn focused_state(&self) -> Option<&dyn InteractiveWidgetState>;
+    fn focused_state_mut(&mut self) -> Option<&mut dyn InteractiveWidgetState>;
 }
 
 impl<T: InteractiveFormHooks> InteractiveForm for T {
-    fn handle_input(&mut self, event: Event) -> InteractionOutcome {
+    fn handle_event(&mut self, event: Event) -> InteractionOutcome {
         self.focused_state_idx()
             .map_or(InteractionOutcome::Bubble, |idx| {
                 self.input_state_at_mut(idx)
@@ -83,6 +89,16 @@ impl<T: InteractiveFormHooks> InteractiveForm for T {
             state.unfocus()
         }
         self.set_focused_state_idx(None);
+    }
+
+    fn focused_state(&self) -> Option<&dyn InteractiveWidgetState> {
+        self.focused_state_idx()
+            .and_then(|idx| self.input_state_at(idx))
+    }
+
+    fn focused_state_mut(&mut self) -> Option<&mut dyn InteractiveWidgetState> {
+        self.focused_state_idx()
+            .and_then(|idx| self.input_state_at_mut(idx))
     }
 }
 

@@ -86,21 +86,21 @@
 macro_rules! interactive_form_state {
     // entrypoint
     ($struct_viz:vis struct $name:ident {
-        $($field_viz:vis $field_name:ident : $field_type:ty $(= $default:expr)?),*
+        $($field_viz:vis $field_name:ident : $field_type:ty $(= $default:expr)?),* $(,)?
     }) => {
         $crate::interactive_form_state!(
             'make_struct_and_impl $struct_viz $name $($field_viz $field_name:$field_type $(= $default)?)*
         );
     };
 
-    // entrypoint w/o trailing comma variant
-    ($struct_viz:vis struct $name:ident {
-        $($field_viz:vis $field_name:ident : $field_type:ty $(= $default:expr)?,)*
-    }) => {
-        $crate::interactive_form_state!(
-            'make_struct_and_impl $struct_viz $name $($field_viz $field_name:$field_type $(= $default)?)*
-        );
-    };
+    // // entrypoint w/o trailing comma variant
+    // ($struct_viz:vis struct $name:ident {
+    //     $($field_viz:vis $field_name:ident : $field_type:ty $(= $default:expr)?,)*
+    // }) => {
+    //     $crate::interactive_form_state!(
+    //         'make_struct_and_impl $struct_viz $name $($field_viz $field_name:$field_type $(= $default)?)*
+    //     );
+    // };
 
     //
     // implementation details follow
@@ -131,15 +131,6 @@ macro_rules! interactive_form_state {
             #[allow(dead_code)]
             pub fn input_states_len() -> usize {
                 $crate::interactive_form_state!('count_idents $($field_name)*)
-            }
-
-            #[allow(dead_code)]
-            #[allow(unused_variables)]
-            pub fn input_state_at(&self, idx: usize) -> Option<&dyn $crate::widgets::InteractiveWidgetState> {
-                $crate::interactive_form_state!(
-                    'get_field_at_idx (&self) idx;
-                    $($field_name)*
-                )
             }
         }
     };
@@ -212,6 +203,14 @@ macro_rules! interactive_form_state {
             fn input_state_at_mut(&mut self, idx: usize) -> Option<&mut dyn $crate::widgets::InteractiveWidgetState> {
                 $crate::interactive_form_state!(
                     'get_field_at_idx (&mut self) idx;
+                    $($field_name)*
+                )
+            }
+
+            #[allow(unused_variables)]
+            fn input_state_at(&self, idx: usize) -> Option<&dyn $crate::widgets::InteractiveWidgetState> {
+                $crate::interactive_form_state!(
+                    'get_field_at_idx (&self) idx;
                     $($field_name)*
                 )
             }

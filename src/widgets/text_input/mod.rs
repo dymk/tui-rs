@@ -95,12 +95,14 @@ pub struct TextInputState {
     is_focused: bool,
     // Can the input take focus?
     can_take_focus: bool,
+    // Did the input change when the last event was handled?
+    changed: bool,
 }
 
 // default initializer for TextInputState from &str
-impl Into<TextInputState> for &str {
-    fn into(self) -> TextInputState {
-        TextInputState::with_value(self)
+impl From<&str> for TextInputState {
+    fn from(value: &str) -> TextInputState {
+        TextInputState::with_value(value)
     }
 }
 
@@ -149,6 +151,7 @@ impl Default for TextInputState {
             is_focused: false,
             cursor_pos: 0,
             can_take_focus: true,
+            changed: false,
         }
     }
 }

@@ -6,14 +6,21 @@ use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState}
 
 impl InteractiveWidgetState for TextInputState {
     fn handle_event(&mut self, event: Event) -> InteractionOutcome {
+        self.changed = false;
+
         if !self.is_focused() {
             return InteractionOutcome::Bubble;
         }
 
-        match event {
+        let old_value = self.value.to_string();
+        let ret = match event {
             Event::Key(key) => self.handle_key(key),
             _ => InteractionOutcome::Bubble,
+        };
+        if self.value != old_value {
+            self.changed = true;
         }
+        ret
     }
 
     fn is_focused(&self) -> bool {
@@ -34,6 +41,10 @@ impl InteractiveWidgetState for TextInputState {
 
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
+    }
+
+    fn changed(&self) -> bool {
+        self.changed
     }
 }
 
@@ -269,8 +280,14 @@ mod test {
         assert_eq!("foo bar baz", state.get_value());
         assert_eq!(11, state.cursor_pos);
 
+        assert_consumed!(state.handle_event(code(KeyCode::Right)));
+        assert_eq!(11, state.cursor_pos);
+
         assert_consumed!(state.handle_event(ctrl('a')));
         assert_eq!("foo bar baz", state.get_value());
+        assert_eq!(0, state.cursor_pos);
+
+        assert_consumed!(state.handle_event(code(KeyCode::Left)));
         assert_eq!(0, state.cursor_pos);
 
         assert_consumed!(state.handle_event(alt('f')));
@@ -292,6 +309,18 @@ mod test {
         state.handle_event(alt('b'));
         assert_eq!("foo bar baz", state.get_value());
         assert_eq!(4, state.cursor_pos);
+    }
+
+    #[test]
+    fn test_changed() {
+        let mut state = TextInputState::default();
+        assert!(!state.changed());
+        state.focus();
+        assert!(!state.changed());
+        state.handle_event(plain('i'));
+        assert!(state.changed());
+        state.handle_event(code(KeyCode::Left));
+        assert!(!state.changed());
     }
 
     // helper macros + functions
