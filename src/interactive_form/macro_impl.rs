@@ -93,15 +93,6 @@ macro_rules! interactive_form_state {
         );
     };
 
-    // // entrypoint w/o trailing comma variant
-    // ($struct_viz:vis struct $name:ident {
-    //     $($field_viz:vis $field_name:ident : $field_type:ty $(= $default:expr)?,)*
-    // }) => {
-    //     $crate::interactive_form_state!(
-    //         'make_struct_and_impl $struct_viz $name $($field_viz $field_name:$field_type $(= $default)?)*
-    //     );
-    // };
-
     //
     // implementation details follow
     //
@@ -113,6 +104,17 @@ macro_rules! interactive_form_state {
         $name:ident
         $($field_viz:vis $field_name:ident:$field_type:ty $(= $field_default:expr)?)*
     ) => {
+        macro_rules! $name {
+            (for_each_field => $$lambda:expr) => {
+                $({
+                    let idx = 0;
+                    let name = stringify!($field_name);
+                    let mut lambda = $$lambda;
+                    lambda(idx, name);
+                })*
+            }
+        }
+
         $crate::interactive_form_state!('make_struct $struct_viz $name $($field_viz $field_name:$field_type)*);
         $crate::interactive_form_state!('make_default $name
             [$([$field_name:$field_type$(=$field_default)?])*] []
@@ -273,6 +275,22 @@ mod test {
         quux: TextInputState = "smaz",
         whup: TextInputState
     });
+
+    #[test]
+    fn test_for_each_field() {
+        let mut strs = vec![];
+        Foo!(for_each_field => |idx, name| {
+            strs.push(format!("idx: {}, name: {}", idx, name));
+        });
+        assert_eq!(
+            vec![
+                "idx: 0, name: bar",
+                "idx: 0, name: quux",
+                "idx: 0, name: whup",
+            ],
+            strs
+        )
+    }
 
     #[test]
     fn test_works() {

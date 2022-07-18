@@ -31,7 +31,7 @@ mod tabs;
 mod text_input;
 
 #[cfg(feature = "crossterm")]
-mod crossterm_interactive_widget;
+mod interactive_widget_state;
 
 pub use self::barchart::BarChart;
 pub use self::block::{Block, BorderType};
@@ -46,7 +46,7 @@ pub use self::tabs::Tabs;
 pub use self::text_input::{TextInput, TextInputState};
 
 #[cfg(feature = "crossterm")]
-pub use self::crossterm_interactive_widget::{InteractionOutcome, InteractiveWidgetState};
+pub use self::interactive_widget_state::{InteractionOutcome, InteractiveWidgetState};
 
 use crate::backend::Backend;
 use crate::Frame;

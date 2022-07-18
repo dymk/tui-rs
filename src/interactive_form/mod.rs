@@ -2,7 +2,9 @@ use crate::widgets::{InteractionOutcome, InteractiveWidgetState};
 use crossterm::event::Event;
 
 use crate::stdlib_utils::AndThenOrOption;
-pub mod macro_impl;
+
+#[cfg(test)]
+mod test_macro;
 
 /*
  * Structs that implement `InteractiveFormBacking` hooks will automatically get an

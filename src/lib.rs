@@ -161,6 +161,12 @@
 //! you might need a blank space somewhere, try to pass an additional constraint and don't use the
 //! corresponding area.
 
+extern crate tui_rs_macros;
+
+pub mod macros {
+    pub use tui_rs_macros::interactive_form;
+}
+
 pub mod backend;
 pub mod buffer;
 pub mod interactive_form;

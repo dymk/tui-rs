@@ -1,0 +1,20 @@
+[package]
+name = "tui-rs-macros"
+version = "0.0.1"
+authors = ["Dylan Knutson <dymk@dymk.co>"]
+description = """
+Proc macros for tui-rs
+"""
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "1.0", features = ["full"] }
+quote = "1.0"
+proc-macro2 = "1.0"
+proc-macro-crate = "1.1"
+
+[dev-dependencies]
+pretty_assertions = "1.2"
+prettyplease = "0.1"
