@@ -181,7 +181,7 @@ impl TextInputState {
 mod test {
     use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-    use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState};
+    use crate::widgets::{InteractionOutcome, TextInputState, InteractiveWidgetState};
 
     macro_rules! assert_consumed {
         ($expr:expr) => {
@@ -240,7 +240,7 @@ mod test {
 
         // ctrl+w word removal, from the end of a word
         state.set_value("foo bar baz   smaz");
-        state.set_cursor(18);
+        state.set_cursor_pos(18);
         assert_consumed!(state.handle_event(ctrl('w')));
         assert_eq!("foo bar baz   ", state.get_value());
         assert_eq!(14, state.cursor_pos);
@@ -274,7 +274,7 @@ mod test {
         let mut state = TextInputState::default();
         state.focus();
         state.set_value("foo bar baz");
-        state.set_cursor(0);
+        state.set_cursor_pos(0);
 
         assert_consumed!(state.handle_event(ctrl('e')));
         assert_eq!("foo bar baz", state.get_value());
