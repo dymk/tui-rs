@@ -4,7 +4,7 @@ use crossterm::event::Event;
 use crate::stdlib_utils::AndThenOrOption;
 
 #[cfg(test)]
-mod test_macro;
+mod macro_test;
 
 /*
  * Structs that implement `InteractiveFormBacking` hooks will automatically get an
