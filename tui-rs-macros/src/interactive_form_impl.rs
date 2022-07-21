@@ -4,7 +4,7 @@ use quote::quote;
 use quote::{ToTokens, TokenStreamExt};
 use syn::parse::{Parse, Parser};
 
-use syn::{token, Expr, Fields};
+use syn::{Expr, Fields};
 
 use crate::def_struct;
 

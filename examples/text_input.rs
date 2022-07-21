@@ -184,7 +184,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     {
         let text_input =
             TextInput::new().block(Block::default().title("Basic Input").borders(Borders::ALL));
-        f.render_interactive(text_input, inputs_layout[0], &mut app.input_states[0]);
+        f.render_interactive(text_input, inputs_layout[0], &app.input_states[0]);
     }
     {
         let text_input = TextInput::new()
@@ -194,13 +194,13 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                     .borders(Borders::ALL),
             )
             .placeholder_text("Type something...");
-        f.render_interactive(text_input, inputs_layout[1], &mut app.input_states[1]);
+        f.render_interactive(text_input, inputs_layout[1], &app.input_states[1]);
     }
     {
         let text_input = TextInput::new()
             .text_style(Style::default().fg(Color::Yellow))
             .block(Block::default().title("Is Followed").borders(Borders::ALL));
-        f.render_interactive(text_input, inputs_layout[2], &mut app.input_states[2]);
+        f.render_interactive(text_input, inputs_layout[2], &app.input_states[2]);
     }
     {
         let text_input = TextInput::new()
@@ -211,7 +211,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                     .title("Follows Above (read only)")
                     .borders(Borders::ALL),
             );
-        f.render_interactive(text_input, inputs_layout[3], &mut app.input_states[2]);
+        f.render_interactive(text_input, inputs_layout[3], &app.input_states[2]);
     }
 
     let table = Table::new(
