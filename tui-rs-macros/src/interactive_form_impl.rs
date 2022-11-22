@@ -40,8 +40,7 @@ pub(crate) fn process(mut struct_ast: syn::ItemStruct) -> TokenStream {
 
     // add in impl blocks
     stream.append_all(impl_default_tokstream);
-
-    stream.into()
+    stream
 }
 
 struct ColonJoined<'a>(&'a def_struct::Field, &'a Expr);
@@ -173,9 +172,28 @@ fn make_impl_form_hooks_block(
     struct_ast: &syn::ItemStruct,
 ) -> Result<TokenStream, syn::Error> {
     let name = &struct_ast.ident;
-    let num_fields = &struct_ast.fields.len();
+    let num_fields = Literal::usize_unsuffixed(struct_ast.fields.len()).into_token_stream();
     let named = matches!(struct_ast.fields, Fields::Named(_));
     let unit = matches!(struct_ast.fields, Fields::Unit);
+
+    let fields_and_names: Vec<TokenStream> = struct_ast
+        .fields
+        .iter()
+        .enumerate()
+        .map(|(idx, field)| {
+            let field_name = &field.ident.as_ref().map_or_else(
+                || Literal::usize_unsuffixed(idx).into_token_stream(),
+                |ident| ident.clone().into_token_stream(),
+            );
+            let field_name_str = &field.ident.as_ref().map_or_else(
+                || Literal::string(&idx.to_string()).into_token_stream(),
+                |ident| Literal::string(&ident.to_string()).into_token_stream(),
+            );
+            quote! {
+                (#field_name_str, &self.#field_name)
+            }
+        })
+        .collect();
 
     let (input_state_at_non_mut, input_state_at_with_mut): (Vec<_>, Vec<_>) = struct_ast
         .fields
@@ -211,7 +229,7 @@ fn make_impl_form_hooks_block(
     let focused_idx_field_tok = if named {
         quote! { _focused_state_idx }
     } else {
-        Literal::usize_unsuffixed(*num_fields).into_token_stream()
+        num_fields.clone()
     };
 
     let get_focused_idx_body = if unit {
@@ -231,6 +249,12 @@ fn make_impl_form_hooks_block(
     };
 
     Ok(quote! {
+        impl #name {
+            pub fn as_list(&self) -> [(&str, &dyn (#crate_ident::widgets::InteractiveWidgetState)); #num_fields] {
+                [#(#fields_and_names),*]
+            }
+        }
+
         impl #crate_ident::interactive_form::InteractiveFormHooks for #name {
             fn focused_state_idx(&self)
                 -> Option<usize>
@@ -306,6 +330,11 @@ mod test {
                     }
                 }
             }
+            impl MyForm {
+                pub fn as_list(&self) -> [(&str, &dyn (::tui::widgets::InteractiveWidgetState)); 2] {
+                    [("foo", &self.foo), ("bar", &self.bar)]
+                }
+            }
             impl ::tui::interactive_form::InteractiveFormHooks for MyForm {
                 fn focused_state_idx(&self) -> Option<usize> {
                     self._focused_state_idx
@@ -314,7 +343,7 @@ mod test {
                     self._focused_state_idx = idx;
                 }
                 fn input_states_len(&self) -> usize {
-                    2usize
+                    2
                 }
                 fn input_state_at(
                     &self, idx: usize
@@ -366,6 +395,11 @@ mod test {
                     )
                 }
             }
+            impl MyForm {
+                pub fn as_list(&self) -> [(&str, &dyn (::tui::widgets::InteractiveWidgetState)); 2] {
+                    [("0", &self.0), ("1", &self.1)]
+                }
+            }
             impl ::tui::interactive_form::InteractiveFormHooks for MyForm {
                 fn focused_state_idx(&self) -> Option<usize> {
                     self.2
@@ -374,7 +408,7 @@ mod test {
                     self.2 = idx;
                 }
                 fn input_states_len(&self) -> usize {
-                    2usize
+                    2
                 }
                 fn input_state_at(
                     &self, idx: usize
@@ -417,13 +451,18 @@ mod test {
                     MyForm
                 }
             }
+            impl MyForm {
+                pub fn as_list(&self) -> [(&str, &dyn (::tui::widgets::InteractiveWidgetState)); 0] {
+                    []
+                }
+            }
             impl ::tui::interactive_form::InteractiveFormHooks for MyForm {
                 fn focused_state_idx(&self) -> Option<usize> {
                     None
                 }
                 fn set_focused_state_idx(&mut self, _idx: Option<usize>) {}
                 fn input_states_len(&self) -> usize {
-                    0usize
+                    0
                 }
                 fn input_state_at(
                     &self, _idx: usize

@@ -1,0 +1,11 @@
+[package]
+name = "tui-rs-text-input-example"
+version = "0.0.1"
+authors = ["Dylan Knutson <dymk@dymk.co>"]
+description = """
+example using a proc macro
+"""
+
+[dependencies]
+tui = { path = "../../" }
+crossterm = "0.23"

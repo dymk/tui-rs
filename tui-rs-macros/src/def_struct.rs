@@ -57,7 +57,6 @@ impl ToTokens for Struct {
     }
 }
 
-
 impl Parse for Field {
     fn parse(input: parse::ParseStream) -> syn::Result<Self> {
         Ok(Field {
@@ -102,7 +101,7 @@ impl ToTokens for DefaultValue {
 
 impl Parse for DefaultValueExpr {
     fn parse(input: parse::ParseStream) -> syn::Result<Self> {
-        Ok(DefaultValueExpr{
+        Ok(DefaultValueExpr {
             eq_token: input.parse()?,
             expr: input.parse()?,
         })

@@ -46,7 +46,9 @@ pub use self::tabs::Tabs;
 pub use self::text_input::{TextInput, TextInputState};
 
 #[cfg(feature = "crossterm")]
-pub use self::interactive_widget_state::{InteractionOutcome, InteractiveWidgetState};
+pub use self::interactive_widget_state::{
+    InteractionOutcome, InteractiveWidgetState, InteractiveWidgetValue,
+};
 
 use crate::backend::Backend;
 use crate::Frame;

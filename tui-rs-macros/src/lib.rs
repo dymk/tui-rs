@@ -1,8 +1,8 @@
 extern crate proc_macro;
 extern crate proc_macro2;
+extern crate proc_macro_crate;
 extern crate quote;
 extern crate syn;
-extern crate proc_macro_crate;
 
 #[cfg(test)]
 extern crate pretty_assertions;
@@ -11,8 +11,8 @@ extern crate prettyplease;
 
 use proc_macro::TokenStream;
 
-mod interactive_form_impl;
 mod def_struct;
+mod interactive_form_impl;
 
 #[proc_macro_attribute]
 pub fn interactive_form(_args: TokenStream, input: TokenStream) -> TokenStream {

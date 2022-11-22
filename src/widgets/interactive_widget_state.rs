@@ -2,6 +2,12 @@ use std::any::Any;
 
 use crossterm::event::Event;
 
+pub enum InteractiveWidgetValue<'a> {
+    Bool(bool),
+    String(&'a str),
+    None,
+}
+
 pub trait InteractiveWidgetState: std::fmt::Debug {
     /// Handle an event, updating the widget state if needed
     fn handle_event(&mut self, _event: Event) -> InteractionOutcome {
@@ -10,6 +16,9 @@ pub trait InteractiveWidgetState: std::fmt::Debug {
 
     /// Did the state change in response to the last handle_event?
     fn changed(&self) -> bool;
+
+    // Value underlying the user input
+    fn value(&self) -> InteractiveWidgetValue;
 
     /// Is the widget currently being focused?
     fn is_focused(&self) -> bool;

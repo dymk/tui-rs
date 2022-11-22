@@ -2,7 +2,10 @@ use std::any::Any;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState};
+use crate::widgets::{
+    interactive_widget_state::InteractiveWidgetValue, InteractionOutcome, InteractiveWidgetState,
+    TextInputState,
+};
 
 impl InteractiveWidgetState for TextInputState {
     fn handle_event(&mut self, event: Event) -> InteractionOutcome {
@@ -45,6 +48,10 @@ impl InteractiveWidgetState for TextInputState {
 
     fn changed(&self) -> bool {
         self.changed
+    }
+
+    fn value(&self) -> InteractiveWidgetValue {
+        InteractiveWidgetValue::String(self.value.as_str())
     }
 }
 
@@ -181,7 +188,7 @@ impl TextInputState {
 mod test {
     use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 
-    use crate::widgets::{InteractionOutcome, TextInputState, InteractiveWidgetState};
+    use crate::widgets::{InteractionOutcome, InteractiveWidgetState, TextInputState};
 
     macro_rules! assert_consumed {
         ($expr:expr) => {
