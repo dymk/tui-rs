@@ -6,6 +6,8 @@ pub struct TextInputState {
     pub(super) cursor_pos: usize,
     // Is the input focused?
     is_focused: bool,
+    // Can the input be changed?
+    is_read_only: bool,
     // Can the input take focus?
     can_take_focus: bool,
     // Did the input change when the last event was handled?
@@ -26,6 +28,15 @@ impl TextInputState {
             cursor_pos: value.len(),
             ..Default::default()
         }
+    }
+
+    pub fn is_read_only(&self) -> bool {
+        self.is_read_only
+    }
+    pub fn read_only(&mut self, read_only: bool) -> bool {
+        let ret = self.is_read_only;
+        self.is_read_only = read_only;
+        ret
     }
 
     pub fn can_take_focus(&mut self, can_take_focus: bool) {
@@ -68,6 +79,7 @@ impl Default for TextInputState {
             cursor_pos: 0,
             can_take_focus: true,
             changed: false,
+            is_read_only: false,
         }
     }
 }

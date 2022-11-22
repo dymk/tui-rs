@@ -66,6 +66,7 @@ struct App {
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     let mut app = App::default();
     app.inputs.button.set_value("A Button");
+    app.inputs.button.read_only(true);
 
     loop {
         terminal.draw(|f| ui(f, &mut app))?;

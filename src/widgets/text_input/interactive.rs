@@ -21,7 +21,11 @@ impl InteractiveWidgetState for TextInputState {
             _ => InteractionOutcome::Bubble,
         };
         if self.value != old_value {
-            self.changed = true;
+            if self.is_read_only() {
+                self.value = old_value
+            } else {
+                self.changed = true;
+            }
         }
         ret
     }
