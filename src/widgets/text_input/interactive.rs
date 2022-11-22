@@ -16,16 +16,13 @@ impl InteractiveWidgetState for TextInputState {
         }
 
         let old_value = self.value.to_string();
+
         let ret = match event {
             Event::Key(key) => self.handle_key(key),
             _ => InteractionOutcome::Bubble,
         };
         if self.value != old_value {
-            if self.is_read_only() {
-                self.value = old_value
-            } else {
-                self.changed = true;
-            }
+            self.changed = true;
         }
         ret
     }
@@ -120,6 +117,10 @@ impl TextInputState {
         match (modifiers, code) {
             // delete to current word start
             (KeyModifiers::CONTROL, KeyCode::Char('w')) => {
+                if self.is_read_only() {
+                    return InteractionOutcome::Consumed;
+                }
+
                 // find the first boundary going from non-whitespace to whitespace,
                 // going backwards from the cursor position
                 // println!("up to cursor ({}): '{}'", self.cursor_pos, self.up_to_cursor());
@@ -162,12 +163,18 @@ impl TextInputState {
     fn handle_plain(&mut self, code: KeyCode) -> InteractionOutcome {
         match code {
             KeyCode::Backspace => {
+                if self.is_read_only() {
+                    return InteractionOutcome::Consumed;
+                }
                 if self.cursor_pos > 0 {
                     self.cursor_pos -= 1;
                     self.value.remove(self.cursor_pos as usize);
                 }
             }
             KeyCode::Char(c) => {
+                if self.is_read_only() {
+                    return InteractionOutcome::Consumed;
+                }
                 self.value.insert(self.cursor_pos as usize, c);
                 self.cursor_pos += 1;
             }
