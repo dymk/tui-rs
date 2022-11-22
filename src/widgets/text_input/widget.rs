@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 
 use crate::{
-    layout::Rect,
+    layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Text},
     widgets::{Block, InteractiveWidget, Paragraph},
@@ -16,11 +16,12 @@ pub struct TextInput<'a> {
     // Placeholder text - what's shown if the state value is "" - default: None
     placeholder: Option<Text<'a>>,
     // Render as a read-only input - that is, it will not be focused - default: false
-    is_read_only: bool,
+    disable_cursor: bool,
     // Style to render the widget when focused - default: Bold style
     focused_style: Style,
     // Style to apply to displayed text - overriden by focused_style when focused
     text_style: Style,
+    alignment: Alignment,
 }
 
 impl<'a> TextInput<'a> {
@@ -33,8 +34,13 @@ impl<'a> TextInput<'a> {
         self
     }
 
-    pub fn read_only(mut self, read_only: bool) -> TextInput<'a> {
-        self.is_read_only = read_only;
+    pub fn disable_cursor(mut self, disable_cursor: bool) -> TextInput<'a> {
+        self.disable_cursor = disable_cursor;
+        self
+    }
+
+    pub fn alignment(mut self, alignment: Alignment) -> TextInput<'a> {
+        self.alignment = alignment;
         self
     }
 
@@ -75,9 +81,10 @@ impl<'a> Default for TextInput<'a> {
         Self {
             optional_block: Default::default(),
             placeholder: Default::default(),
-            is_read_only: false,
+            disable_cursor: false,
             focused_style: Style::default().add_modifier(Modifier::BOLD),
             text_style: Default::default(),
+            alignment: Alignment::Left,
         }
     }
 }
@@ -91,7 +98,7 @@ impl<'a> InteractiveWidget for TextInput<'a> {
         frame: &mut crate::Frame<'b, B>,
         state: &Self::State,
     ) {
-        let is_focused = !self.is_read_only && state.is_focused();
+        let is_focused = state.is_focused();
 
         let area = if let Some(block) = self.optional_block.take() {
             let block = if is_focused {
@@ -121,10 +128,9 @@ impl<'a> InteractiveWidget for TextInput<'a> {
             }
         };
 
-        let paragraph = Paragraph::new(contents);
-
+        let paragraph = Paragraph::new(contents).alignment(self.alignment);
         frame.render_widget(paragraph, area);
-        if is_focused {
+        if !self.disable_cursor && is_focused {
             frame.set_cursor(area.x + (state.get_cursor_pos() as u16), area.y);
         }
     }

@@ -11,7 +11,7 @@ use std::{error::Error, io};
 use tui::{
     backend::{Backend, CrosstermBackend},
     interactive_form::{self, InteractiveForm},
-    layout::{Constraint, Layout},
+    layout::{Alignment, Constraint, Direction, Layout},
     macros::interactive_form,
     style::{Color, Modifier, Style},
     text::{Span, Spans},
@@ -52,6 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 #[interactive_form]
 struct Inputs {
     pub basic_input: TextInputState,
+    pub button: TextInputState,
     pub placeholder_input: TextInputState,
     pub followed_input: TextInputState,
 }
@@ -64,6 +65,7 @@ struct App {
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     let mut app = App::default();
+    app.inputs.button.set_value("A Button");
 
     loop {
         terminal.draw(|f| ui(f, &mut app))?;
@@ -95,7 +97,7 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
             [
                 Constraint::Length(10),
                 Constraint::Length(14),
-                Constraint::Length(5),
+                Constraint::Length(6),
                 Constraint::Percentage(100),
             ]
             .as_ref(),
@@ -140,10 +142,22 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .split(inputs_rect);
 
     {
+        let with_button = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Min(100), Constraint::Length(20)].as_ref())
+            .split(inputs_layout[0]);
+
         let text_input =
             TextInput::new().block(Block::default().title("Basic Input").borders(Borders::ALL));
-        f.render_interactive(text_input, inputs_layout[0], &app.inputs.basic_input);
+        f.render_interactive(text_input, with_button[0], &app.inputs.basic_input);
+
+        let button = TextInput::new()
+            .alignment(Alignment::Center)
+            .disable_cursor(true)
+            .block(Block::default().borders(Borders::ALL));
+        f.render_interactive(button, with_button[1], &app.inputs.button);
     }
+
     {
         let text_input = TextInput::new()
             .block(
@@ -167,7 +181,8 @@ fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     {
         let text_input = TextInput::new()
             .text_style(Style::default().fg(Color::LightBlue))
-            .read_only(true)
+            .disable_cursor(true)
+            .focused_style(Style::default())
             .block(
                 Block::default()
                     .title("Follows Above (read only)")
