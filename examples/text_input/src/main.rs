@@ -10,7 +10,7 @@ use crossterm::{
 use std::{error::Error, io};
 use tui::{
     backend::{Backend, CrosstermBackend},
-    interactive_form::{self, InteractiveForm},
+    interactive_form::{InteractiveForm},
     layout::{Alignment, Constraint, Direction, Layout},
     macros::interactive_form,
     style::{Color, Modifier, Style},

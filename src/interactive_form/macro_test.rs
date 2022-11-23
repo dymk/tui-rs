@@ -37,7 +37,7 @@ fn test_defaults() {
 #[test]
 fn test_works() {
     let form = EmptyNamed::default();
-    let focused = form.focused_state_idx();
+    let focused = form.get_focused_idx();
     assert!(focused.is_none());
     assert_eq!(0, form.input_states_len());
 

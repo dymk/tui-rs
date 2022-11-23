@@ -56,7 +56,7 @@ fn push_focused_state_field(struct_ast: &mut syn::ItemStruct) -> Result<(), syn:
     match &mut struct_ast.fields {
         syn::Fields::Named(fields) => {
             let field = syn::Field::parse_named.parse2(quote! {
-                _focused_state_idx: Option<usize>
+                _focused_idx: Option<usize>
             })?;
             fields.named.push(field);
             Ok(())
@@ -127,8 +127,7 @@ fn make_impl_default_fn<'a>(
         })
         .collect::<Result<Vec<_>, syn::Error>>()?;
 
-    let focused_ident_pfx =
-        get_field_prefix(named, &Ident::new("_focused_state_idx", Span::call_site()));
+    let focused_ident_pfx = get_field_prefix(named, &Ident::new("_focused_idx", Span::call_site()));
 
     let initializer_list = quote! {
         #(
@@ -227,25 +226,21 @@ fn make_impl_form_hooks_block(
     };
 
     let focused_idx_field_tok = if named {
-        quote! { _focused_state_idx }
+        quote! { _focused_idx }
     } else {
         num_fields.clone()
     };
 
-    let get_focused_idx_body = if unit {
-        quote! { None }
-    } else {
-        quote! {
-            self.#focused_idx_field_tok
-        }
-    };
-
-    let set_focused_idx_body = if unit {
+    let set_focus_body = if unit {
         quote! {}
     } else {
-        quote! {
-            self.#focused_idx_field_tok = #idx_param;
-        }
+        quote! { self.#focused_idx_field_tok = #idx_param; }
+    };
+
+    let get_focus_body = if unit {
+        quote! { None }
+    } else {
+        quote! { self.#focused_idx_field_tok }
     };
 
     Ok(quote! {
@@ -256,28 +251,26 @@ fn make_impl_form_hooks_block(
         }
 
         impl #crate_ident::interactive_form::InteractiveFormHooks for #name {
-            fn focused_state_idx(&self)
-                -> Option<usize>
+            fn get_focused_idx(&self) -> Option<usize>
             {
-                #get_focused_idx_body
+                #get_focus_body
             }
-            fn set_focused_state_idx(&mut self, #idx_param: Option<usize>)
+            fn set_focused_idx(&mut self, #idx_param: Option<usize>)
             {
-                #set_focused_idx_body
+                #set_focus_body
             }
-
             fn input_states_len(&self)
                 -> usize
             {
                 #num_fields
             }
-            fn input_state_at(&self, #idx_param: usize)
+            fn input_at_idx(&self, #idx_param: usize)
                 -> Option<&dyn (#crate_ident::widgets::InteractiveWidgetState)>
             {
                 #(#input_state_at_non_mut)*
                 return None;
             }
-            fn input_state_at_mut(&mut self, #idx_param: usize)
+            fn input_at_idx_mut(&mut self, #idx_param: usize)
                 -> Option<&mut dyn (#crate_ident::widgets::InteractiveWidgetState)>
             {
                 #(#input_state_at_with_mut)*
@@ -319,14 +312,14 @@ mod test {
             struct MyForm {
                 foo: TextInputState,
                 bar: TextInputState,
-                _focused_state_idx: Option<usize>,
+                _focused_idx: Option<usize>,
             }
             impl ::core::default::Default for MyForm {
                 fn default() -> Self {
                     Self {
                         foo: ("FooDefault").into(),
                         bar: ::core::default::Default::default(),
-                        _focused_state_idx: None,
+                        _focused_idx: None,
                     }
                 }
             }
@@ -336,16 +329,16 @@ mod test {
                 }
             }
             impl ::tui::interactive_form::InteractiveFormHooks for MyForm {
-                fn focused_state_idx(&self) -> Option<usize> {
-                    self._focused_state_idx
+                fn get_focused_idx(&self) -> Option<usize> {
+                    self._focused_idx
                 }
-                fn set_focused_state_idx(&mut self, idx: Option<usize>) {
-                    self._focused_state_idx = idx;
+                fn set_focused_idx(&mut self, idx: Option<usize>) {
+                    self._focused_idx = idx;
                 }
                 fn input_states_len(&self) -> usize {
                     2
                 }
-                fn input_state_at(
+                fn input_at_idx(
                     &self, idx: usize
                 ) -> Option<&dyn (::tui::widgets::InteractiveWidgetState)> {
                     if idx == 0 {
@@ -356,7 +349,7 @@ mod test {
                     }
                     return None;
                 }
-                fn input_state_at_mut(
+                fn input_at_idx_mut(
                     &mut self,
                     idx: usize,
                 ) -> Option<&mut dyn (::tui::widgets::InteractiveWidgetState)> {
@@ -401,16 +394,16 @@ mod test {
                 }
             }
             impl ::tui::interactive_form::InteractiveFormHooks for MyForm {
-                fn focused_state_idx(&self) -> Option<usize> {
+                fn get_focusedrm_idx(&self) -> Option<usize> {
                     self.2
                 }
-                fn set_focused_state_idx(&mut self, idx: Option<usize>) {
+                fn set_focused_idx(&mut self, idx: Option<usize>) {
                     self.2 = idx;
                 }
                 fn input_states_len(&self) -> usize {
                     2
                 }
-                fn input_state_at(
+                fn input_at_idx(
                     &self, idx: usize
                 ) -> Option<&dyn (::tui::widgets::InteractiveWidgetState)> {
                     if idx == 0 {
@@ -421,7 +414,7 @@ mod test {
                     }
                     return None;
                 }
-                fn input_state_at_mut(
+                fn input_at_idx_mut(
                     &mut self,
                     idx: usize,
                 ) -> Option<&mut dyn (::tui::widgets::InteractiveWidgetState)> {
@@ -457,19 +450,19 @@ mod test {
                 }
             }
             impl ::tui::interactive_form::InteractiveFormHooks for MyForm {
-                fn focused_state_idx(&self) -> Option<usize> {
+                fn get_focused_idx(&self) -> Option<usize> {
                     None
                 }
-                fn set_focused_state_idx(&mut self, _idx: Option<usize>) {}
+                fn set_focused_idx(&mut self, _idx: Option<usize>) {}
                 fn input_states_len(&self) -> usize {
                     0
                 }
-                fn input_state_at(
+                fn input_at_idx(
                     &self, _idx: usize
                 ) -> Option<&dyn (::tui::widgets::InteractiveWidgetState)> {
                     return None;
                 }
-                fn input_state_at_mut(
+                fn input_at_idx_mut(
                     &mut self,
                     _idx: usize,
                 ) -> Option<&mut dyn (::tui::widgets::InteractiveWidgetState)> {
