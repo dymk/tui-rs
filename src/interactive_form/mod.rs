@@ -23,6 +23,7 @@ pub trait InteractiveForm {
 
     fn focus_next_input(&mut self);
     fn focus_prev_input(&mut self);
+    fn focus_input(&mut self, idx: usize);
 
     fn is_focused(&self) -> bool;
 
@@ -93,6 +94,19 @@ impl<T: InteractiveFormHooks> InteractiveForm for T {
     fn focused_input_mut(&mut self) -> Option<&mut dyn InteractiveWidgetState> {
         self.get_focused_idx()
             .and_then(|idx| self.input_at_idx_mut(idx))
+    }
+
+    fn focus_input(&mut self, idx: usize) {
+        if let Some((_, input)) = focused_input_and_idx_mut(self) {
+            input.unfocus();
+        }
+
+        if idx < self.input_states_len() {
+            self.set_focused_idx(Some(idx));
+            if let Some(input) = self.input_at_idx_mut(idx) {
+                input.focus();
+            }
+        }
     }
 }
 

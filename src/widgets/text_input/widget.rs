@@ -3,13 +3,12 @@ use std::borrow::Cow;
 use crate::{
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
-    text::{Span, Text},
+    text::{Span, Spans, Text},
     widgets::{Block, InteractiveWidget, Paragraph},
 };
 
 use super::state::TextInputState;
 
-#[derive(Debug, Clone)]
 pub struct TextInput<'a> {
     // Block to draw the text input inside (convenience function) - default: None
     optional_block: Option<Block<'a>>,
@@ -22,6 +21,8 @@ pub struct TextInput<'a> {
     // Style to apply to displayed text - overriden by focused_style when focused
     text_style: Style,
     alignment: Alignment,
+    // If present, will be called to post-process the text to apply styling
+    styler: Option<Box<dyn FnOnce(bool, &str) -> Spans>>,
 }
 
 impl<'a> TextInput<'a> {
@@ -36,6 +37,14 @@ impl<'a> TextInput<'a> {
 
     pub fn disable_cursor(mut self, disable_cursor: bool) -> TextInput<'a> {
         self.disable_cursor = disable_cursor;
+        self
+    }
+
+    pub fn styler<F>(mut self, styler: F) -> TextInput<'a>
+    where
+        F: FnOnce(bool, &str) -> Spans + 'static,
+    {
+        self.styler = Some(Box::new(styler));
         self
     }
 
@@ -85,6 +94,7 @@ impl<'a> Default for TextInput<'a> {
             focused_style: Style::default().add_modifier(Modifier::BOLD),
             text_style: Default::default(),
             alignment: Alignment::Left,
+            styler: None,
         }
     }
 }
@@ -121,7 +131,9 @@ impl<'a> InteractiveWidget for TextInput<'a> {
             }
         } else {
             let value = state.get_value();
-            if is_focused {
+            if let Some(cb) = self.styler {
+                cb(is_focused, value).into()
+            } else if is_focused {
                 Span::styled(value, self.focused_style).into()
             } else {
                 Span::styled(value, self.text_style).into()
